@@ -86,6 +86,10 @@ ExecutorService service = Executors.newScheduledThreadPool(5);创建一个定时
 
 ExecutorService service = Executors.newSingleThreadExceutor(); 创建一个单例线程池
 
+ExecutorService service = Executors.newForkJoinPool(); 创建一个可分支线程池
+service.fork()
+
+
 
 
 
