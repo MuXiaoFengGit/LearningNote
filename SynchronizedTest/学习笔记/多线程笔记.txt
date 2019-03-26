@@ -89,6 +89,14 @@ ExecutorService service = Executors.newSingleThreadExceutor(); 创建一个单�
 ExecutorService service = Executors.newForkJoinPool(); 创建一个可分支线程池
 service.fork()
 
+ThreadPoolExecutor threadPoolExecutor = 
+new ThreadPoolExecutor(5, 5, 123, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+创建一个自定义线程池
+
+
+9、栈与栈帧
+栈中每调用一个方法，就会新建一个栈帧，并push进栈中，方法执行完毕后，return 数据先保存在栈帧的局部变量区中，
+再执行Finally块，然后将栈帧pop出来，也就是说，一个栈中包含多个栈帧。
 
 
 

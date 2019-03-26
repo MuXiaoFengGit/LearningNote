@@ -11,7 +11,6 @@ public class ThreadPoolExecutorTest {
 				new ThreadPoolExecutor(5, 5, 123, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
 		for(int i=0;i<5;i++) {
 			threadPoolExecutor.execute(new Runnable() {
-				
 				@Override
 				public void run() {
 					System.out.println(Thread.currentThread().getName());
