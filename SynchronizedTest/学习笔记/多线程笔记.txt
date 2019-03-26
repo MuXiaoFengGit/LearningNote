@@ -7,6 +7,7 @@
 6）锁的对象如果是常量对象，需要看是否为常量池（字符串），或者栈帧中数值（-127-127），则为同一个对象，如果是new的，必然不是。
 7）加锁前，会将工作内存清空，读取主存中的最新数据值，解锁前，会将工作内存中数据同步到主存中，从而保证了数据可见性
 8）无公平性，是竞争锁
+9）如果锁的对象是方法中定义，那么单线程只会有自己的对象，不存在多线程争抢问题，jvm会将锁编译解释为偏向锁，不再清空工作内存
 
 2、volatile 关键字
 1）os操作系统中分硬盘--内存--cpu高速缓存--cpu，其中cpu高速缓存如果在cpu不间断执行（例如执行空while，while如果加了东西就可能不是不间断了，也有可能是）时，
@@ -36,3 +37,59 @@ Lock lock =new ReentrantLock(true);
 Condition newCondition = lock.newCondition();
 newCondition.await(); 等待
 newCondition.signalAll();唤醒
+
+
+5、锁的底层实现
+1）偏向锁---自旋锁--轻量级锁----重量级锁
+2）每个需要加锁的对象，都会创建一个一一对应的Monitor对象（ObjectMonitor），用以记录锁的争抢信息，多线程访问同一个加锁对象时，
+只有唯一一个Owner会与Monitor一一对应，其余在WaitSet和EntryList中记录，当Owner释放置为null时，从EntryList中竞争选取持有锁标记。
+如果时wait notifyall等方法，则与waitSet相关。
+3）偏向锁适用于单线程，不可能存在多线程争抢时编译解释，如锁定方法内对象。
+	两个线程可能轻量级锁，用ACC_SYNCHRONIZED ACC_UNSYNCHRONIZED记录锁信息，也有可能用重量级锁
+4）偏向锁升级轻量级锁时，有个过度状态自旋锁，就是当第一次获取不到锁对象时不会立刻进入阻塞状态，而是执行若干次空循环，再尝试获取锁对象，
+目的是为了减少状态变更，提高运行效率。
+5）重量级锁，即常见锁，有就绪（Ready）--运行（running）--阻塞（等待，锁池）等一系列状态变更的锁
+
+6、跳表 skipList
+1）如key10指向key18  插入key15，则key10指向key15，插入key20，则key15 key18指向key20，以此类推。
+
+
+7、Queue （先进先出FIFO）
+1）peek() 查看首数据  poll() 获取首数据，并移除
+3.1ConcurrentLinkedQueue基础链表同步队列。
+3.2LinkedBlockingQueue阻塞队列，队列容量不足自动阻塞，队列容量为 0 自动阻塞。
+3.3ArrayBlockingQueue底层数组实现的有界队列。自动阻塞。
+根据调用 API（add/put当容量不足的时候，有阻塞能力。
+add 方法在容量不足的时候，抛出异常。
+put 方法在容量不足的时候，阻塞等待。
+offer 方法，单参数 offer 方法，不阻塞。容量不足的时候，返回 false。
+当前三参数 offer 方法（offer(value,times,timeunit)），容量不足的时候timeunit），
+如果在阻塞时长内，有容量空闲，新增数据返回 无容量空闲，放弃新增数据，返回 false。
+3.4DelayQueue延时队列。根据比较机制，实现自定义处理顺序的队列。常用如：定时关机。
+3.5LinkedTransferQueue转移队列，使用 transfer 方法，实现数据的即时处理。没有消费
+3.6SynchronusQueue同步队列，是一个容量为 0 的队列。是一个特殊的 TransferQue必须现有消费线程等待，
+才能使用的队列。add 方法，无阻塞。若没有消费线程阻塞等待数据，则抛出异常put 方法，有阻塞。
+若没有消费线程阻塞等待数据，则阻塞
+
+
+8、线程池
+ExecutorService service = Executors.newFixedThreadPool(5);创建一个定容量的线程池
+service.execute(); 执行一个线程，如果超过线程池容量，加入等待队列等待执行。
+service.shutdown();优雅关闭，只停止接收新线程，等待现有线程执行完毕后关闭
+状态：Running--Shutting Down --Terminated
+生命周期：创建--jvm关闭或手动shutdown
+
+ExecutorService service = Executors.newCachedThreadPool();创建一个自动扩容的线程池
+最大容量：Integer.MAX_VALUE  自动销毁线程时间：60s
+
+ExecutorService service = Executors.newScheduledThreadPool(5);创建一个定时执行的线程池，选取线程随机。
+
+ExecutorService service = Executors.newSingleThreadExceutor(); 创建一个单例线程池
+
+
+
+
+
+
+
+
